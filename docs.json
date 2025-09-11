@@ -21,13 +21,7 @@
       },
       {
         "group": "Enrichment API",
-        "openapi": "openapi.yaml",
-        "pages": [
-          "POST /v1/enrich",
-          "POST /v1/enrich/batch",
-          "GET /v1/enrich/stream",
-          "GET /v1/enrich/jobs/{id}"
-        ]
+        "openapi": "openapi.yaml"
       }
     ]
   },
