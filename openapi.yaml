@@ -54,22 +54,9 @@ paths:
 
   /v1/enrich:
     post:
-      summary: Universal Data Enrichment (Queue + Wait)
+      summary: Enrich (single)
       description: |
-        **🎯 Enrich any type of data with AI-powered intelligence using our scalable Queue + Wait architecture.**
-        
-        This endpoint uses a Queue + Wait pattern for optimal performance:
-        - **Fast Processing**: Returns 200 OK with results if completed within 90 seconds
-        - **Graceful Timeout**: Returns 202 Accepted with job_id if processing takes longer
-        - **Background Continuation**: Long-running jobs continue processing in the background
-        - **Priority Processing**: Higher subscription tiers get faster queue priority
-        
-        **Subscription Tier Limits** (database-driven, no hardcoded limits):
-        - **DEVELOPER**: 1 source, 5 enrichments per call
-        - **STARTUP**: 1 source, 10 enrichments per call  
-        - **GROWTH**: 3 sources, 25 enrichments per call
-        - **SCALE**: 10 sources, 100 enrichments per call
-        - **ADMIN**: Unlimited sources and enrichments
+        **🎯 Enrich any type of data with AI-powered intelligence.**
       operationId: enrichData
       tags: [Enrichment]
       security:
@@ -134,8 +121,12 @@ paths:
 
   /v1/enrich/batch:
     post:
-      summary: Batch Enrichment with SSE Streaming
+      summary: Enrich (batch)
       description: |
+        <Info>
+        **Available on GROWTH and SCALE plans only.** DEVELOPER and STARTUP users should use `/v1/enrich` for single enrichments.
+        </Info>
+        
         **📦 Submit multiple enrichment jobs for parallel processing.**
         
         Returns immediately with job IDs. Use the SSE streaming endpoint for real-time updates.
@@ -171,8 +162,12 @@ paths:
 
   /v1/enrich/stream:
     get:
-      summary: Real-time Batch Results Streaming (SSE)
+      summary: Enrich (stream)
       description: |
+        <Info>
+        **Available on GROWTH and SCALE plans only.** Requires batch jobs from `/v1/enrich/batch`.
+        </Info>
+        
         **🔄 Server-Sent Events (SSE) endpoint for real-time batch job results.**
         
         Stream real-time updates as batch jobs complete.
@@ -216,7 +211,7 @@ components:
           type: array
           items:
             type: object
-            required: [field_name, field_type]
+            required: [field_name]
             properties:
               field_name:
                 type: string
@@ -227,7 +222,12 @@ components:
                 description: Expected data type of the field
               instructions:
                 type: string
-                description: Optional specific instructions for enrichment
+                description: |
+                  Optional specific instructions for enrichment
+                  
+                  <Warning>
+                  **field_type and instructions not available on DEVELOPER plan**
+                  </Warning>
 
     EnrichmentResponse:
       type: object
