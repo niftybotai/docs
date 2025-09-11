@@ -1,0 +1,123 @@
+---
+title: Examples
+description: "Explore a variety of use cases that demonstrate the power and flexibility of the NiftyBot API."
+---
+
+The NiftyBot API is a universal enrichment tool. Here are some examples of how it can be used across different domains to achieve powerful results.
+
+## Competitive Analysis
+
+You can use NiftyBot to gather intelligence on your competitors. In this example, we'll get the estimated market share and the latest major product launch for a competitor.
+
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "source": {
+      "company": "Figma",
+      "industry": "Design Software"
+    },
+    "requests": [
+      {
+        "field_name": "market_share_percentage",
+        "field_type": "numeric",
+        "instructions": "Estimate the company'\''s current market share in the UI/UX design tool industry."
+      },
+      {
+        "field_name": "latest_major_product_launch",
+        "field_type": "text",
+        "instructions": "What was the name and date of their last major product release?"
+      }
+    ]
+  }'
+```
+
+## Financial Due Diligence
+
+Enrich a list of startups with their latest funding round and a summary of their business model.
+
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "source": {
+      "company": "Perplexity AI",
+      "website": "perplexity.ai"
+    },
+    "requests": [
+      {
+        "field_name": "total_funding_usd",
+        "field_type": "numeric"
+      },
+      {
+        "field_name": "business_model_summary",
+        "field_type": "text",
+        "instructions": "Summarize how the company makes money in one sentence."
+      }
+    ]
+  }'
+```
+
+## Content & SEO
+
+Generate metadata for a blog post or article.
+
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "source": {
+      "article_url": "https://www.nasa.gov/news/artemis/artemis-ii-astronauts-to-view-spectacular-earthrise/"
+    },
+    "requests": [
+      {
+        "field_name": "seo_title",
+        "field_type": "text",
+        "instructions": "Generate a concise, SEO-friendly title for this article (under 60 characters)."
+      },
+      {
+        "field_name": "meta_description",
+        "field_type": "text",
+        "instructions": "Generate a compelling meta description for this article (under 160 characters)."
+      },
+      {
+        "field_name": "primary_keywords",
+        "field_type": "text",
+        "instructions": "List the top 3-5 primary keywords for this article as a comma-separated list."
+      }
+    ]
+  }'
+```
+
+## E-commerce Catalog Enrichment
+
+Augment a product listing with structured data.
+
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "source": {
+      "product_name": "Sony WH-1000XM5 Wireless Headphones",
+      "brand": "Sony"
+    },
+    "requests": [
+      {
+        "field_name": "noise_cancellation_type",
+        "field_type": "categorical"
+      },
+      {
+        "field_name": "bluetooth_version",
+        "field_type": "text"
+      },
+      {
+        "field_name": "battery_life_music_playback_hours",
+        "field_type": "numeric"
+      }
+    ]
+  }'
+```
