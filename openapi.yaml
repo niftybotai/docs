@@ -3,27 +3,16 @@ info:
   title: NiftyBot Product API
   version: "2.0.0"
   description: |
-    **🚀 NiftyBot Product API v2.0 - Universal Data Enrichment + Customer Portal**
+    **🚀 NiftyBot Product API v2.0 - Universal Data Enrichment**
     
-    The NiftyBot Product API provides enterprise-grade data enrichment and customer portal functionality. This API combines our universal data enrichment capabilities with secure customer account management.
+    The NiftyBot Product API provides enterprise-grade data enrichment with scalable Queue + Wait architecture.
     
     **✨ Key Features:**
-    - **⚡ Universal Data Enrichment**: AI-powered enrichment for any data type (medical, legal, sports, academic, etc.)
-    - **🚀 Queue + Wait Architecture**: Scalable processing with 90-second timeout and graceful fallback
-    - **📊 Database-Driven Limits**: No hardcoded limits - all tier restrictions come from database
-    - **🎯 Priority Processing**: Higher subscription tiers get faster queue priority (1-10 scale)
-    - **🔄 Real-time SSE Streaming**: Server-Sent Events for batch job completion updates
-    - **🧠 Intelligent Web Search**: LLM-driven decisions for when to use fresh web data
-    - **🎯 Precise Source Attribution**: Direct citations for web search results
-    - **🔐 Dual Authentication**: API keys for enrichment, JWT for customer portal
-    - **📊 Customer Portal**: Profile, usage stats, API key management
-    - **🛡️ Vector-Enhanced Search**: Advanced semantic search capabilities
-
-    **🏗️ Architecture:**
-    This is the main customer-facing API service, running on port 3000 (localhost) or api.niftybot.ai (production).
-
-    **Rate Limiting**: Subject to rate limiting. Check `X-RateLimit-*` headers for status.
-    
+    - **⚡ Universal Data Enrichment**: AI-powered enrichment for any data type
+    - **🚀 Queue + Wait Architecture**: Scalable processing with 90-second timeout
+    - **📊 Database-Driven Limits**: No hardcoded limits - all tier restrictions from database
+    - **🎯 Priority Processing**: Higher subscription tiers get faster queue priority
+    - **🔄 Real-time SSE Streaming**: Server-Sent Events for batch job completion
   contact:
     name: NiftyBot Support
     url: https://niftybot.ai/support
@@ -37,10 +26,8 @@ servers:
 
 security:
   - ApiKeyAuth: []
-  - BearerAuth: []
 
 paths:
-  # Health and Documentation Endpoints
   /health:
     get:
       summary: Health Check
@@ -65,21 +52,6 @@ paths:
                     type: string
                     format: date-time
 
-  /metrics:
-    get:
-      summary: Prometheus Metrics
-      description: Prometheus metrics endpoint for monitoring
-      tags: [System]
-      security: []
-      responses:
-        '200':
-          description: Prometheus metrics
-          content:
-            text/plain:
-              schema:
-                type: string
-
-  # Enrichment Endpoints
   /v1/enrich:
     post:
       summary: Universal Data Enrichment (Queue + Wait)
@@ -98,8 +70,6 @@ paths:
         - **GROWTH**: 3 sources, 25 enrichments per call
         - **SCALE**: 10 sources, 100 enrichments per call
         - **ADMIN**: Unlimited sources and enrichments
-        
-        **Universal Coverage**: Works with medical, legal, sports, academic, government, entertainment, and any other data type.
       operationId: enrichData
       tags: [Enrichment]
       security:
@@ -111,7 +81,7 @@ paths:
             schema:
               $ref: '#/components/schemas/EnrichmentRequest'
             examples:
-              sports_player_lookup:
+              sports_player:
                 summary: Sports Player Statistics
                 value:
                   source:
@@ -122,28 +92,6 @@ paths:
                       field_type: "numeric"
                     - field_name: "championships_won"
                       field_type: "numeric"
-              academic_research:
-                summary: Academic Research Data
-                value:
-                  source:
-                    author_name: "Dr. Jane Smith"
-                    institution: "MIT"
-                  requests:
-                    - field_name: "h_index"
-                      field_type: "numeric"
-                    - field_name: "research_areas"
-                      field_type: "text"
-              medical_compound:
-                summary: Medical Compound Information
-                value:
-                  source:
-                    compound_name: "Aspirin"
-                    chemical_formula: "C9H8O4"
-                  requests:
-                    - field_name: "mechanism_of_action"
-                      field_type: "text"
-                    - field_name: "side_effects"
-                      field_type: "text"
       responses:
         '200':
           description: Successful enrichment response (completed within 90 seconds)
@@ -170,10 +118,6 @@ paths:
                   status:
                     type: string
                     example: "processing"
-                  estimated_completion:
-                    type: string
-                    format: date-time
-                    example: "2024-12-11T10:35:00Z"
         '400':
           description: Bad request - invalid input or tier limits exceeded
           content:
@@ -187,12 +131,6 @@ paths:
                   message:
                     type: string
                     example: "Your DEVELOPER tier allows up to 5 enrichments per call. You requested 12. Upgrade your subscription to increase this limit."
-        '401':
-          description: Unauthorized - invalid API key
-        '429':
-          description: Rate limit exceeded
-        '500':
-          description: Internal server error
 
   /v1/enrich/batch:
     post:
@@ -200,13 +138,7 @@ paths:
       description: |
         **📦 Submit multiple enrichment jobs for parallel processing.**
         
-        Returns immediately with job IDs. Use the SSE streaming endpoint (`/v1/enrich/stream`) 
-        for real-time completion updates, or poll individual job status endpoints.
-        
-        **Recommended Flow:**
-        1. Submit batch jobs here
-        2. Connect to `/v1/enrich/stream?job_ids=...` for real-time updates
-        3. Receive completion events as jobs finish
+        Returns immediately with job IDs. Use the SSE streaming endpoint for real-time updates.
       tags: [Enrichment]
       security:
         - ApiKeyAuth: []
@@ -236,44 +168,6 @@ paths:
                     type: array
                     items:
                       type: string
-        '400':
-          description: Bad request - invalid input or exceeds tier limits
-        '401':
-          description: Unauthorized - invalid API key
-        '429':
-          description: Rate limit exceeded
-
-  /v1/enrich/jobs/{id}:
-    get:
-      summary: Get Enrichment Job Status
-      description: Retrieve the status of a previously submitted batch job.
-      tags: [Enrichment]
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Job status
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  job_id:
-                    type: string
-                  status:
-                    type: string
-                    enum: [queued, active, completed, failed]
-                  result:
-                    type: object
-                    nullable: true
-        '404':
-          description: Job not found
 
   /v1/enrich/stream:
     get:
@@ -281,19 +175,7 @@ paths:
       description: |
         **🔄 Server-Sent Events (SSE) endpoint for real-time batch job results.**
         
-        Stream real-time updates as batch jobs complete. This eliminates the need for polling 
-        and provides immediate notification when enrichment jobs finish processing.
-        
-        **Usage:**
-        1. Submit batch jobs via `/v1/enrich/batch`
-        2. Connect to this SSE endpoint with the returned job IDs
-        3. Receive real-time completion events as jobs finish
-        
-        **Event Types:**
-        - `connected`: Initial connection confirmation
-        - `job_completed`: Individual job completion with results
-        - `all_completed`: All requested jobs finished
-        - `error`: Error in job processing
+        Stream real-time updates as batch jobs complete.
       tags: [Enrichment]
       security:
         - ApiKeyAuth: []
@@ -312,181 +194,6 @@ paths:
             text/event-stream:
               schema:
                 type: string
-              examples:
-                connection_event:
-                  summary: Connection Event
-                  value: 'data: {"type":"connected","message":"SSE stream connected"}'
-                job_completed_event:
-                  summary: Job Completed Event  
-                  value: 'data: {"type":"job_completed","job_id":"batch_abc123","enrichments":[...],"total_nbu_cost":89.5}'
-                all_completed_event:
-                  summary: All Jobs Completed
-                  value: 'data: {"type":"all_completed","total_jobs":2,"total_nbu_cost":245.7}'
-        '400':
-          description: Bad request - no job_ids provided
-        '401':
-          description: Unauthorized - invalid API key
-
-  # Customer Portal Endpoints (JWT Auth)
-  /v1/me/profile:
-    get:
-      summary: Get User Profile
-      description: Retrieve the authenticated user's profile information
-      tags: [Customer Portal]
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: User profile information
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserProfile'
-
-    put:
-      summary: Update User Profile
-      description: Update the authenticated user's profile information
-      tags: [Customer Portal]
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                company:
-                  type: string
-      responses:
-        '200':
-          description: Profile updated successfully
-
-  /v1/me/usage:
-    get:
-      summary: Get Usage Statistics
-      description: Retrieve detailed usage statistics for the authenticated user
-      tags: [Customer Portal]
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: period
-          in: query
-          schema:
-            type: string
-            enum: [current, last_30_days, last_7_days]
-            default: current
-      responses:
-        '200':
-          description: Usage statistics
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UsageStats'
-
-  /v1/me/api-key:
-    get:
-      summary: Get API Key Information
-      description: Retrieve information about the user's API key (masked for security)
-      tags: [Customer Portal]
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: API key information
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiKeyResponse'
-
-    post:
-      summary: Rotate API Key
-      description: Generate a new API key and deactivate the old one
-      tags: [Customer Portal]
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: New API key generated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiKeyResponse'
-
-  /v1/me/subscription:
-    get:
-      summary: Get Subscription Details
-      description: Retrieve subscription tier and billing information
-      tags: [Customer Portal]
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Subscription information
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SubscriptionInfo'
-
-  /v1/me/billing:
-    get:
-      summary: Get Billing History
-      description: Retrieve billing history and invoice information
-      tags: [Customer Portal]
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            default: 10
-            maximum: 100
-      responses:
-        '200':
-          description: Billing history
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  invoices:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Invoice'
-
-  /v1/me/settings:
-    get:
-      summary: Get User Settings
-      description: Retrieve user preference settings
-      tags: [Customer Portal]
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: User settings
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserSettings'
-
-    put:
-      summary: Update User Settings
-      description: Update user preference settings
-      tags: [Customer Portal]
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserSettings'
-      responses:
-        '200':
-          description: Settings updated successfully
 
 components:
   securitySchemes:
@@ -494,31 +201,19 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
-      description: API key for enrichment endpoints (format: nb_dev_keyId.secret or nb_prod_keyId.secret)
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: JWT token for customer portal endpoints
+      description: API key for authentication
 
   schemas:
     EnrichmentRequest:
       type: object
       required: [source, requests]
       properties:
-        record_id:
-          type: string
-          description: Optional unique identifier for the enrichment request
         source:
           type: object
-          description: The source data to enrich (can be any structure)
+          description: Source data to enrich
           additionalProperties: true
-          example:
-            player_name: "Stephen Curry"
-            sport: "Basketball"
         requests:
           type: array
-          description: List of fields to enrich
           items:
             type: object
             required: [field_name, field_type]
@@ -526,271 +221,50 @@ components:
               field_name:
                 type: string
                 description: Name of the field to enrich
-                example: "career_points"
               field_type:
                 type: string
-                description: Expected data type
-                enum: [text, numeric, boolean, date, email, url, json]
-                example: "numeric"
+                enum: [text, numeric, boolean]
+                description: Expected data type of the field
               instructions:
                 type: string
-                description: Optional specific instructions for this field
-                example: "Get the total career points scored in NBA regular season games"
+                description: Optional specific instructions for enrichment
 
     EnrichmentResponse:
       type: object
       properties:
         success:
           type: boolean
-          description: Whether the enrichment was successful
         job_id:
           type: string
-          description: Unique identifier for this enrichment job
         enrichments:
           type: array
-          description: Array of enrichment results
           items:
             type: object
             properties:
               field_name:
                 type: string
-                description: Name of the enriched field
-              field_type:
-                type: string
-                description: Data type of the field
               value:
-                description: The enriched value (type varies based on field_type)
+                description: The enriched value
               confidence:
                 type: number
                 format: float
                 minimum: 0
                 maximum: 1
-                description: Confidence score for the enrichment (0-1)
+              complexity_score:
+                type: number
+                format: float
+                minimum: 1
+                maximum: 10
               method:
                 type: string
-                description: Method used for enrichment
-                enum: [reasoning, reasoning+web, web_search, cache]
-              reasoning:
-                type: string
-                description: Explanation of how the value was determined
-              sources:
-                type: array
-                description: Source citations (present when web search was used)
-                items:
-                  type: object
-                  properties:
-                    hit:
-                      type: integer
-                      description: Hit number reference
-                    url:
-                      type: string
-                      format: uri
-                      description: Source URL
-                    title:
-                      type: string
-                      description: Page title
-                    snippet:
-                      type: string
-                      description: Relevant text snippet
-        total_cost_usd:
-          type: number
-          format: float
-          description: Total cost in USD (admin-only; may be 0 for public)
-        total_processing_time_ms:
-          type: integer
-          description: Total processing time in milliseconds (admin-only; may be 0 for public)
-
-    UserProfile:
-      type: object
-      properties:
-        id:
-          type: string
-          description: User unique identifier
-        email:
-          type: string
-          format: email
-          description: User email address
-        name:
-          type: string
-          description: User full name
-        company:
-          type: string
-          description: Company name
-        createdAt:
-          type: string
-          format: date-time
-          description: Account creation timestamp
-        lastLoginAt:
-          type: string
-          format: date-time
-          description: Last login timestamp
-
-    ApiKeyResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          description: API key unique identifier
-        keyName:
-          type: string
-          description: Human-readable key name
-        keyPrefix:
-          type: string
-          description: Key prefix (e.g., nb_dev_, nb_prod_)
-        maskedKey:
-          type: string
-          description: Masked API key for security
-        environment:
-          type: string
-          enum: [development, production]
-          description: Key environment
-        isActive:
-          type: boolean
-          description: Whether the key is active
-        lastUsed:
-          type: string
-          format: date-time
-          nullable: true
-          description: Last usage timestamp
-        createdAt:
-          type: string
-          format: date-time
-          description: Key creation timestamp
-        fullKey:
-          type: string
-          description: Full API key (only present on creation/rotation)
-
-    UsageStats:
-      type: object
-      properties:
-        period:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            end:
-              type: string
-              format: date-time
-            daysRemaining:
-              type: integer
-        subscription:
-          type: object
-          properties:
-            tier:
-              type: string
-              description: Subscription tier name
-            status:
-              type: string
-              enum: [active, past_due, canceled]
-            nbuAllotment:
-              type: integer
-              description: Monthly NBU allotment
-            overageRate:
-              type: number
-              format: float
-              description: Overage rate per NBU
-        usage:
-          type: object
-          properties:
-            nbuUsed:
-              type: integer
-              description: NBUs used in current period
-            nbuRemaining:
-              type: integer
-              description: NBUs remaining in current period
-            percentageUsed:
-              type: number
-              format: float
-              description: Percentage of allotment used
-            apiCalls:
-              type: integer
-              description: Number of API calls made
-            enrichments:
-              type: integer
-              description: Number of fields enriched
-            avgNbuPerCall:
-              type: number
-              format: float
-              description: Average NBUs per API call
-            maxNbuCall:
-              type: number
-              format: float
-              description: Maximum NBUs used in a single call
-
-    SubscriptionInfo:
-      type: object
-      properties:
-        tier:
-          type: string
-          description: Current subscription tier
-        status:
-          type: string
-          enum: [active, past_due, canceled, trialing]
-        currentPeriodStart:
-          type: string
-          format: date-time
-        currentPeriodEnd:
-          type: string
-          format: date-time
-        nbuAllotment:
-          type: integer
-          description: Monthly NBU allotment
-        overageEnabled:
-          type: boolean
-          description: Whether overage charges are enabled
-        overageRate:
-          type: number
-          format: float
-          description: Rate per overage NBU
-
-    Invoice:
-      type: object
-      properties:
-        id:
-          type: string
-        number:
-          type: string
-        date:
-          type: string
-          format: date
-        amount:
-          type: number
-          format: float
-        status:
-          type: string
-          enum: [paid, pending, overdue]
-        downloadUrl:
-          type: string
-          format: uri
-
-    UserSettings:
-      type: object
-      properties:
-        emailNotifications:
-          type: object
-          properties:
-            usageAlerts:
-              type: boolean
-            billingUpdates:
-              type: boolean
-            productUpdates:
-              type: boolean
-        apiDefaults:
-          type: object
-          properties:
-            defaultSearchProvider:
-              type: string
-              enum: [brave, tavily, you, openai]
-            defaultComplexityThreshold:
-              type: integer
-              minimum: 1
-              maximum: 10
+              processing_time_ms:
+                type: integer
+              nbu_cost:
+                type: number
+                format: float
 
 tags:
   - name: System
     description: Health and monitoring endpoints
   - name: Enrichment
     description: Universal data enrichment capabilities
-  - name: Customer Portal
-    description: Customer account management and self-service
