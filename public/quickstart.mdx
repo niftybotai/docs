@@ -1,0 +1,161 @@
+---
+title: Quick Start
+description: "Get up and running with the NiftyBot API in minutes."
+---
+
+NiftyBot is a universal data enrichment API that can find, calculate, or infer data points for any given subject. Provide some source data, ask for the information you need, and our AI will handle the rest.
+
+This guide will walk you through authenticating, making your first request, and understanding the API's structure.
+
+## Authentication
+
+First, you'll need an API key. You can generate one from your NiftyBot dashboard. Once you have your key, you'll need to include it in the `X-API-Key` header of every request.
+
+Your API key is a secret! Be sure to keep it secure and do not expose it in any client-side code.
+
+## Making Your First Request
+
+Let's enrich some data. The core of the NiftyBot API is the `/v1/enrich` endpoint. It takes a `source` object (the subject you want to enrich) and a `requests` array (the data you want back).
+
+Here’s a `curl` example that asks for Simone Biles’ up-to-date Olympic gold total after Paris 2024:
+
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "source": {
+      "athlete": "Simone Biles",
+      "competition": "Olympic Games"
+    },
+    "requests": [
+      {
+        "field_name": "olympic_gold_medals"
+      }
+    ]
+  }'
+```
+
+### Understanding the Request
+
+*   `source`: This object contains the initial data you have about a subject. The more context you provide here, the more accurately NiftyBot can enrich it. It's a flexible object and can contain any key-value pairs.
+*   `requests`: This is an array of objects, where each object represents a piece of information you want to find.
+    *   `field_name`: The name of the data point you want. Use clear, descriptive names.
+    *   `field_type`: (Optional) A hint for the expected data type. If omitted, the AI infers the shape automatically.
+    *   `instructions`: (Optional) Specific instructions for the AI (e.g., formatting guidance).
+
+### Understanding the Response
+
+If successful, you'll receive a `200 OK` response with a JSON body containing your enrichments.
+
+```json
+{
+  "requestId": "req_12345",
+  "status": "completed",
+  "processing_time_ms": 1850,
+  "enrichments": [
+    {
+      "field_name": "olympic_gold_medals",
+      "value": "7",
+      "confidence": 0.95,
+      "method": "lookup",
+      "reasoning": "Verified against Paris 2024 medal table and Simone Biles’ official Olympic profile."
+    }
+  ]
+}
+```
+
+*   `value`: The enriched data point.
+*   `confidence`: A score from 0.0 to 1.0 indicating the AI's confidence in the accuracy of the value.
+*   `reasoning`: A brief explanation of how the value was determined.
+*   `method`: The primary technique used (`lookup`, `calculation`, etc.).
+
+## More Examples
+
+NiftyBot is not limited to company data. It's a universal enrichment engine. Here are a few examples to showcase its versatility.
+
+### Scientific Research
+
+Enriching a research paper with its citation count.
+
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "source": {
+      "paper_title": "Attention Is All You Need",
+      "authors": "Ashish Vaswani, Noam Shazeer, et al.",
+      "publication_year": 2017
+    },
+    "requests": [
+      {
+        "field_name": "citation_count",
+        "field_type": "numeric",
+        "instructions": "Find the total number of citations for this paper on Google Scholar."
+      }
+    ]
+  }'
+```
+
+### Product Information
+
+Finding the battery life of a specific product.
+
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "source": {
+      "product_name": "Apple Vision Pro",
+      "manufacturer": "Apple"
+    },
+    "requests": [
+    {
+      "field_name": "battery_life_video_playback_hours"
+    }
+    ]
+  }'
+```
+
+### Geographic Data
+
+Getting the current population of a city.
+
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "source": {
+      "city": "Tokyo",
+      "country": "Japan"
+    },
+    "requests": [
+    {
+      "field_name": "current_population",
+      "instructions": "Find the most recent estimate for the population of the Greater Tokyo Area."
+    }
+    ]
+  }'
+```
+
+Now you're ready to start building with the NiftyBot API. If you have any questions, don't hesitate to reach out to our support team.
+
+```json
+{
+  "source": { "compound_name": "Aspirin", "chemical_formula": "C9H8O4" },
+  "requests": [
+    { "field_name": "mechanism_of_action", "field_type": "text" },
+    { "field_name": "key_researchers", "field_type": "array" },
+    { "field_name": "discovery_details", "field_type": "json" }
+  ]
+}
+```
+
+> The enrichment API supports structured field hints: use `field_type: "array"` for ordered lists and `field_type: "json"` for nested objects when you expect rich responses. These hints are optional—but when provided, they guide the LLM toward the exact format you need.
+
+> Observability: Every call lights up the NiftyBot dashboard—traces, logs, and metrics are stitched together automatically so you can replay any enrichment in seconds.
+
+> Batch Guardrails: When you opt into `/v1/enrich/batch`, we steward the queue for you—single-connection polling, TLS, and observability are all built-in. Watch the dashboards; if the signal looks abnormal, ping the platform team.

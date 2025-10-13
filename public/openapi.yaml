@@ -1,0 +1,276 @@
+openapi: 3.1.0
+info:
+  title: NiftyBot Product API
+  version: "2.0.0"
+  description: |
+    **🚀 NiftyBot Product API v2.0 - Universal Data Enrichment**
+    
+    The NiftyBot Product API provides enterprise-grade data enrichment with scalable Queue + Wait architecture.
+    
+    **✨ Key Features:**
+    - **⚡ Universal Data Enrichment**: AI-powered enrichment for any data type
+    - **🚀 Queue + Wait Architecture**: Scalable processing with 90-second timeout
+    - **📊 Database-Driven Limits**: No hardcoded limits - all tier restrictions from database
+    - **🎯 Priority Processing**: Higher subscription tiers get faster queue priority
+    - **🔄 Real-time SSE Streaming**: Server-Sent Events for batch job completion
+  contact:
+    name: NiftyBot Support
+    url: https://niftybot.ai/support
+    email: support@niftybot.ai
+
+servers:
+  - url: https://api.niftybot.ai
+    description: Production API
+  - url: http://localhost:3000
+    description: Development API
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Check the health status of the Product API service
+      operationId: getHealth
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  service:
+                    type: string
+                    example: product-api
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /v1/enrich:
+    post:
+      summary: Enrich (single)
+      description: |
+        **⚡ Instant AI enrichment.**
+
+        Submit any subject and NiftyBot delivers the finished answers in the same response—reasoning, live-web intelligence, validation, and confidence included. Grab the `request_id` from the payload if you want to explore the timeline inside the NiftyBot dashboard.           
+      operationId: enrichData
+      tags: [Enrichment]
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichmentRequest'
+            examples:
+              sports_player:
+                summary: Sports Player Statistics
+                value:
+                  source:
+                    player_name: "LeBron James"
+                    sport: "Basketball"
+                  requests:
+                    - field_name: "career_points"
+                      field_type: "numeric"
+                    - field_name: "championships_won"
+                      field_type: "numeric"
+      responses:
+        '200':
+          description: Instant enrichment response (real-time)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentResponse'
+        '202':
+          description: Job queued for background processing (timeout after 90 seconds)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  job_id:
+                    type: string
+                    example: "enrich_abc123"
+                  message:
+                    type: string
+                    example: "Job queued for background processing"
+                  status:
+                    type: string
+                    example: "processing"
+        '400':
+          description: Bad request - invalid input or tier limits exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Too many enrichment requests"
+                  message:
+                    type: string
+                    example: "Your DEVELOPER tier allows up to 5 enrichments per call. You requested 12. Upgrade your subscription to increase this limit."
+
+  /v1/enrich/batch:
+    post:
+      summary: Enrich (batch)
+      description: |
+        <Info>
+        **Available on GROWTH and SCALE plans only.** DEVELOPER and STARTUP users should use `/v1/enrich` for single enrichments.
+        </Info>
+        
+        **📦 Submit multiple enrichment jobs for parallel processing.**
+        
+        Returns immediately with job IDs. Use the SSE streaming endpoint for real-time updates.
+      operationId: submitBatchEnrichments
+      tags: [Enrichment]
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [jobs]
+              properties:
+                jobs:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/EnrichmentRequest'
+      responses:
+        '202':
+          description: Batch accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accepted:
+                    type: integer
+                  job_ids:
+                    type: array
+                    items:
+                      type: string
+
+  /v1/enrich/stream:
+    get:
+      summary: Enrich (stream results)
+      description: |
+        <Info>
+        **Available on GROWTH and SCALE plans only.** Requires batch jobs from `/v1/enrich/batch`.
+        </Info>
+        
+        **🔄 Server-Sent Events (SSE) endpoint for real-time batch job results.**
+        
+        Stream real-time updates as batch jobs complete.
+      operationId: streamBatchJobs
+      tags: [Enrichment]
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: job_ids
+          in: query
+          required: true
+          description: Comma-separated list of job IDs to monitor
+          schema:
+            type: string
+          example: "batch_abc123,batch_def456"
+      responses:
+        '200':
+          description: SSE stream established
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+  schemas:
+    EnrichmentRequest:
+      type: object
+      required: [source, requests]
+      properties:
+        source:
+          oneOf:
+            - type: object
+              description: Source data to enrich
+              additionalProperties: true
+            - type: array
+              description: Array of source items to enrich
+        requests:
+          type: array
+          items:
+            type: object
+            required: [field_name]
+            properties:
+              field_name:
+                type: string
+                description: Name of the field to enrich
+              field_type:
+                type: string
+                enum: [text, numeric, boolean, categorical, url, email, date, json, array]
+                nullable: true
+                description: |
+                  Optional hint for the expected data type of the field. If omitted, the AI infers the best format.
+              instructions:
+                type: string
+                description: |
+                  Optional instructions that should match the desired output format for the chosen field_type.
+
+    EnrichmentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        job_id:
+          type: string
+        enrichments:
+          type: array
+          items:
+            type: object
+            properties:
+              field_name:
+                type: string
+              value:
+                description: The enriched value
+              confidence:
+                type: number
+                format: float
+                minimum: 0
+                maximum: 1
+              complexity_score:
+                type: number
+                format: float
+                minimum: 1
+                maximum: 10
+              method:
+                type: string
+              processing_time_ms:
+                type: integer
+              nbu_cost:
+                type: number
+                format: float
+
+tags:
+  - name: System
+    description: Health and monitoring endpoints
+  - name: Enrichment
+    description: Universal data enrichment capabilities
