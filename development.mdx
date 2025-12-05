@@ -92,3 +92,12 @@ We suggest using extensions on your IDE to recognize and format MDX. If you're a
 </AccordionGroup>
 
 Curious about what changed in the latest CLI version? Check out the [CLI changelog](https://www.npmjs.com/package/mintlify?activeTab=versions).
+
+## Stripe billing guidance
+
+- Use the shared `@niftybot/subscription` client for all Stripe interactions (product, admin, webhooks).
+- Persist `stripe_customer_id` on `users` and rely on webhook handlers (`customer.subscription.*`, `invoice.payment_*`) to update `user_subscriptions`.
+- Generate API keys via the dedicated service (hashed secrets only, redacted prefixes stored).
+- Report usage through `subscriptionItems.createUsageRecord` and enforce overage alerts based on `nbu_usage` vs. plan limits.
+- Replace ad-hoc `console` logging with Fastify request loggers and capture metrics for Stripe API latency / webhook processing.
+- Run reconciliation jobs to detect orphan customers/subscriptions and document recovery playbooks in runbooks.

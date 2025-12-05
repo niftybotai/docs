@@ -1,0 +1,273 @@
+---
+title: Code Samples
+description: "Kickstart your integration with battle-tested snippets for data teams."
+---
+
+Pick the language that matches your pipeline. Every example calls `/v1/enrich` for a CRM enrichment on Microsoft’s CEO and prints the real-time response.
+
+<CodeGroup>
+```bash title="curl"
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $NIFTYBOT_API_KEY" \
+  -d '{
+    "source": {
+      "company": "Microsoft",
+      "title": "Chief Executive Officer"
+    },
+    "requests": [
+      { "field_name": "full_name" },
+      { "field_name": "linkedin_url" },
+      { "field_name": "previous_company" },
+      {
+        "field_name": "recent_press_mentions",
+        "field_type": "array",
+        "instructions": "Return up to three notable 2024 press mentions with publication and date"
+      }
+    ]
+  }'
+```
+
+```python title="Python"
+import os
+import json
+import requests
+
+API_KEY = os.environ["NIFTYBOT_API_KEY"]
+URL = "https://api.niftybot.ai/v1/enrich"
+
+payload = {
+    "source": {
+        "company": "Microsoft",
+        "title": "Chief Executive Officer"
+    },
+    "requests": [
+        {"field_name": "full_name"},
+        {"field_name": "linkedin_url"},
+        {"field_name": "previous_company"},
+        {
+            "field_name": "recent_press_mentions",
+            "field_type": "array",
+            "instructions": "Return up to three notable 2024 press mentions with publication and date"
+        }
+    ]
+}
+
+response = requests.post(
+    URL,
+    headers={"X-API-Key": API_KEY, "Content-Type": "application/json"},
+    data=json.dumps(payload),
+)
+response.raise_for_status()
+print(json.dumps(response.json(), indent=2))
+```
+
+```typescript title="TypeScript"
+const apiKey = process.env.NIFTYBOT_API_KEY!;
+const url = "https://api.niftybot.ai/v1/enrich";
+
+const body = {
+  source: {
+    company: "Microsoft",
+    title: "Chief Executive Officer",
+  },
+  requests: [
+    { field_name: "full_name" },
+    { field_name: "linkedin_url" },
+    { field_name: "previous_company" },
+    {
+      field_name: "recent_press_mentions",
+      field_type: "array",
+      instructions: "Return up to three notable 2024 press mentions with publication and date",
+    },
+  ],
+};
+
+async function enrich() {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": apiKey,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+  console.log(await res.json());
+}
+
+enrich().catch((error) => console.error("Enrichment failed", error));
+```
+
+```java title="Java"
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+public class EnrichExample {
+  public static void main(String[] args) throws Exception {
+    String apiKey = System.getenv("NIFTYBOT_API_KEY");
+    String body = """
+      {
+        \"source\": {
+          \"company\": \"Microsoft\",
+          \"title\": \"Chief Executive Officer\"
+        },
+        \"requests\": [
+          { \"field_name\": \"full_name\" },
+          { \"field_name\": \"linkedin_url\" },
+          { \"field_name\": \"previous_company\" },
+          {
+            \"field_name\": \"recent_press_mentions\",
+            \"field_type\": \"array\",
+            \"instructions\": \"Return up to three notable 2024 press mentions with publication and date\"
+          }
+        ]
+      }
+    """;
+
+    HttpRequest request = HttpRequest.newBuilder()
+      .uri(URI.create("https://api.niftybot.ai/v1/enrich"))
+      .header("Content-Type", "application/json")
+      .header("X-API-Key", apiKey)
+      .POST(HttpRequest.BodyPublishers.ofString(body))
+      .build();
+
+    HttpClient client = HttpClient.newHttpClient();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    System.out.println(response.statusCode());
+    System.out.println(response.body());
+  }
+}
+```
+
+```scala title="Scala (Spark DataFrame)"
+import org.apache.spark.sql.SparkSession
+import scalaj.http.Http
+
+val spark = SparkSession.builder().appName("NiftyBot").master("local[*]").getOrCreate()
+val apiKey = sys.env("NIFTYBOT_API_KEY")
+val url = "https://api.niftybot.ai/v1/enrich"
+
+val payload =
+  """
+    {
+      "source": {
+        "company": "Microsoft",
+        "title": "Chief Executive Officer"
+      },
+      "requests": [
+        { "field_name": "full_name" },
+        { "field_name": "linkedin_url" },
+        { "field_name": "previous_company" },
+        {
+          "field_name": "recent_press_mentions",
+          "field_type": "array",
+          "instructions": "Return up to three notable 2024 press mentions with publication and date"
+        }
+      ]
+    }
+  """
+
+val response = Http(url)
+  .postData(payload)
+  .header("Content-Type", "application/json")
+  .header("X-API-Key", apiKey)
+  .asString
+
+spark.read.json(Seq(response.body).toDS()).show(truncate = false)
+```
+
+```go title="Go"
+package main
+
+import (
+  "bytes"
+  "encoding/json"
+  "fmt"
+  "net/http"
+  "os"
+)
+
+func main() {
+  apiKey := os.Getenv("NIFTYBOT_API_KEY")
+  url := "https://api.niftybot.ai/v1/enrich"
+
+  body := map[string]any{
+    "source": map[string]string{
+      "company": "Microsoft",
+      "title":   "Chief Executive Officer",
+    },
+    "requests": []map[string]any{
+      {"field_name": "full_name"},
+      {"field_name": "linkedin_url"},
+      {"field_name": "previous_company"},
+      {
+        "field_name": "recent_press_mentions",
+        "field_type": "array",
+        "instructions": "Return up to three notable 2024 press mentions with publication and date",
+      },
+    },
+  }
+
+  buf, _ := json.Marshal(body)
+  req, _ := http.NewRequest("POST", url, bytes.NewBuffer(buf))
+  req.Header.Set("Content-Type", "application/json")
+  req.Header.Set("X-API-Key", apiKey)
+
+  resp, err := http.DefaultClient.Do(req)
+  if err != nil {
+    panic(err)
+  }
+  defer resp.Body.Close()
+
+  fmt.Println("Status:", resp.Status)
+  var payload map[string]any
+  json.NewDecoder(resp.Body).Decode(&payload)
+  pretty, _ := json.MarshalIndent(payload, "", "  ")
+  fmt.Println(string(pretty))
+}
+```
+
+```rust title="Rust"
+use reqwest::blocking::Client;
+use serde_json::{json, Value};
+use std::env;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+  let api_key = env::var("NIFTYBOT_API_KEY")?;
+  let client = Client::new();
+
+  let payload = json!({
+    "source": {
+      "company": "Microsoft",
+      "title": "Chief Executive Officer"
+    },
+    "requests": [
+      { "field_name": "full_name" },
+      { "field_name": "linkedin_url" },
+      { "field_name": "previous_company" },
+      {
+        "field_name": "recent_press_mentions",
+        "field_type": "array",
+        "instructions": "Return up to three notable 2024 press mentions with publication and date"
+      }
+    ]
+  });
+
+  let res: Value = client
+    .post("https://api.niftybot.ai/v1/enrich")
+    .header("Content-Type", "application/json")
+    .header("X-API-Key", api_key)
+    .json(&payload)
+    .send()?
+    .json()?;
+
+  println!("{}", serde_json::to_string_pretty(&res)?);
+  Ok(())
+}
+```
+</CodeGroup>

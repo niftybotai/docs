@@ -1,0 +1,329 @@
+---
+title: Examples
+description: "See how NiftyBot shines across domains—from simple lookups to multi-step reasoning."                                                            
+---
+
+NiftyBot is a universal enrichment engine. The snippets below highlight real-world use cases that balance speed, accuracy, and clever reasoning. Each example uses `field_type` or `instructions` only when they add clarity.
+
+## 1. Quick CRM Lookup (Simple)
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $NIFTYBOT_API_KEY" \
+  -d '{
+    "source": {
+      "company": "Microsoft",
+      "title": "Chief Executive Officer"
+    },
+    "requests": [
+      { "field_name": "full_name" },
+      { "field_name": "linkedin_url" },
+      { "field_name": "previous_company" }
+    ]
+  }'
+```
+```json
+{
+  "request_id": "req_01J4G0R3SYEHJW0W7Z9TSBY6KX",
+  "enrichments": [
+    { "field_name": "full_name", "value": "Satya Nadella" },
+    { "field_name": "linkedin_url", "value": "https://www.linkedin.com/in/satyanadella/" },
+    { "field_name": "previous_company", "value": "Sun Microsystems (software engineer, early career)" }
+  ]
+}
+```
+
+## 2. Government Policy Context (Reasoning)
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $NIFTYBOT_API_KEY" \
+  -d '{
+    "source": {
+      "policy_name": "Inflation Reduction Act",
+      "region": "United States"
+    },
+    "requests": [
+      {
+        "field_name": "key_provisions",
+        "field_type": "array",
+        "instructions": "Summarize three major provisions in plain English"
+      },
+      { "field_name": "primary_sponsors" }
+    ]
+  }'
+```
+```json
+{
+  "request_id": "req_01J4G0Y88Q1EBSHZRAT5YRB0NM",
+  "enrichments": [
+    {
+      "field_name": "key_provisions",
+      "value": [
+        "Extends and expands clean-energy tax credits for households and utilities",
+        "Allows Medicare to negotiate prices on a limited set of high-cost prescription drugs",
+        "Creates incentives and grants for domestic manufacturing of batteries, solar panels, and EV components"
+      ]
+    },
+    {
+      "field_name": "primary_sponsors",
+      "value": "Sen. Chuck Schumer and Sen. Joe Manchin"
+    }
+  ]
+}
+```
+
+## 3. Sports Analytics Breakdown (Structured)
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $NIFTYBOT_API_KEY" \
+  -d '{
+    "source": {
+      "athlete": "Caitlin Clark",
+      "competition": "2025 WNBA regular season"
+    },
+    "requests": [
+      { "field_name": "points_per_game" },
+      {
+        "field_name": "recent_highlights",
+        "field_type": "array",
+        "instructions": "Return two recent performances from this season (game, date, headline)"
+      }
+    ]
+  }'
+```
+```json
+{
+  "request_id": "req_01J4G1290M2ZV2QS8XD4D3W8JH",
+  "enrichments": [
+    { "field_name": "points_per_game", "value": 24.3 },
+    {
+      "field_name": "recent_highlights",
+      "value": [
+        {
+          "date": "2025-08-10",
+          "game": "Indiana Fever vs. New York Liberty",
+          "headline": "Clark drops 34 with 11 assists in overtime thriller"
+        },
+        {
+          "date": "2025-08-18",
+          "game": "Indiana Fever vs. Seattle Storm",
+          "headline": "Fourth-quarter surge (28/7/6) locks up Fever playoff berth"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## 4. Academic Literature Scan (Complex)
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $NIFTYBOT_API_KEY" \
+  -d '{
+    "source": {
+      "topic": "CRISPR base editing",
+      "journal": "Nature"
+    },
+    "requests": [
+      {
+        "field_name": "latest_research_summary",
+        "field_type": "text",
+        "instructions": "Explain the newest breakthrough in two sentences for a technical audience"
+      },
+      {
+        "field_name": "leading_labs",
+        "field_type": "array",
+        "instructions": "List up to three labs pushing state-of-the-art base editing"
+      }
+    ]
+  }'
+```
+```json
+{
+  "request_id": "req_01J4G17305J3E0ND1F1Z4N6GQH",
+  "enrichments": [
+    {
+      "field_name": "latest_research_summary",
+      "value": "Nature (2024) reports a dual-deaminase editor that simultaneously tunes cytosine and adenine transitions with <1% indel formation, enabling multiplex therapeutic edits in primary hepatocytes. The system leverages phage-assisted evolution to maintain high processivity while reducing bystander edits."
+    },
+    {
+      "field_name": "leading_labs",
+      "value": [
+        "Liu Lab – Broad Institute/Harvard",
+        "Beam Therapeutics Platform Team",
+        "Innovative Genomics Institute (UC Berkeley/UCSF)"
+      ]
+    }
+  ]
+}
+```
+
+## 5. Entertainment Knowledge Graph (JSON Output)
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $NIFTYBOT_API_KEY" \
+  -d '{
+    "source": {
+      "title": "One Battle After Another"
+    },
+    "requests": [
+      {
+        "field_name": "box_office_snapshot",
+        "field_type": "json",
+        "instructions": "Include domestic_gross_usd, international_gross_usd, and updated_at"
+      },
+      {
+        "field_name": "cast_leads",
+        "field_type": "array"
+      }
+    ]
+  }'
+```
+```json
+{
+  "request_id": "req_01J4G1CVSB3NQF0WRTQZKAYW6R",
+  "enrichments": [
+    {
+      "field_name": "box_office_snapshot",
+      "value": {
+        "domestic_gross_usd": 21000000,
+        "international_gross_usd": 24000000,
+        "updated_at": "2025-09-26"
+      }
+    },
+    {
+      "field_name": "cast_leads",
+      "value": ["Paul Mescal", "Denzel Washington", "Pedro Pascal", "Connie Nielsen"]
+    }
+  ]
+}
+```
+
+## 6. DevOps Incident Narrative (Reasoning + Timeline)
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $NIFTYBOT_API_KEY" \
+  -d '{
+    "source": {
+      "incident_id": "AWS-us-east-1-outage-2023-12",
+      "service": "Amazon Web Services"
+    },
+    "requests": [
+      {
+        "field_name": "timeline",
+        "field_type": "array",
+        "instructions": "Provide three chronological milestones with timestamp and summary"
+      },
+      {
+        "field_name": "mitigation_summary",
+        "field_type": "text",
+        "instructions": "Explain the fix implemented and residual risk in one paragraph"
+      }
+    ]
+  }'
+```
+```json
+{
+  "request_id": "req_01J4G1Q57FYYW3TMP2C3X78YQB",
+  "enrichments": [
+    {
+      "field_name": "timeline",
+      "value": [
+        {
+          "timestamp": "2025-09-26T09:18:00Z",
+          "summary": "Azure status page reported degraded networking for West Europe clusters after SmartNIC firmware rollout; rollback initiated."
+        },
+        {
+          "timestamp": "2025-09-26T10:07:00Z",
+          "summary": "Traffic rerouted to unaffected hosts; diagnostics confirmed firmware regression impacting telemetry." 
+        },
+        {
+          "timestamp": "2025-09-26T11:32:00Z",
+          "summary": "Hotfix deployed, telemetry restored, RCA posted with guidance for customers running deferred patching."
+        }
+      ]
+    },
+    {
+      "field_name": "mitigation_summary",
+      "value": "Microsoft paused the problematic SmartNIC firmware rollout, rerouted traffic to unaffected clusters, and issued a hotfix that restored telemetry. The RCA warns that impacted hosts may require manual reboot if customers disabled automatic patching."
+    }
+  ]
+}
+```
+
+## 7. Multi-Entity Enrichment (Batch Example)
+```bash
+curl -X POST https://api.niftybot.ai/v1/enrich/batch \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: $NIFTYBOT_API_KEY" \
+  -d '{
+    "jobs": [
+      {
+        "source": { "player": "Coco Gauff", "tour": "WTA" },
+        "requests": [
+          { "field_name": "world_ranking" },
+          {
+            "field_name": "surface_strengths",
+            "field_type": "array",
+            "instructions": "List top surfaces with one-line rationale"
+          }
+        ]
+      },
+      {
+        "source": { "player": "Iga Swiatek", "tour": "WTA" },
+        "requests": [
+          { "field_name": "world_ranking" },
+          {
+            "field_name": "surface_strengths",
+            "field_type": "array",
+            "instructions": "List top surfaces with one-line rationale"
+          }
+        ]
+      }
+    ]
+  }'
+```
+```json
+{
+  "accepted": 2,
+  "job_ids": ["job_01J4G20A8FBJ4SJG33RXN1V8WF", "job_01J4G20A8FBJ4SJG33RXN1V8WG"]
+}
+```
+```json
+// Example completion payload from /v1/enrich/stream
+{
+  "job_id": "job_01J4G20A8FBJ4SJG33RXN1V8WF",
+  "status": "completed",
+  "enrichments": [
+    { "field_name": "world_ranking", "value": 3 },
+    {
+      "field_name": "surface_strengths",
+      "value": [
+        "Hard court – attacking serve plus improved backhand return",
+        "Grass – low-contact footwork keeps points short"
+      ]
+    }
+  ]
+}
+{
+  "job_id": "job_01J4G20A8FBJ4SJG33RXN1V8WG",
+  "status": "completed",
+  "enrichments": [
+    { "field_name": "world_ranking", "value": 1 },
+    {
+      "field_name": "surface_strengths",
+      "value": [
+        "Clay – heavy topspin forehand and sliding defense dominate rallies",
+        "Hard court – improved serve variety keeps returners guessing"
+      ]
+    }
+  ]
+}
+```
+
+> Ready to orchestrate? Batch responses stream via `/v1/enrich/stream` so you can monitor progress in real time.

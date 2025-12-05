@@ -1,97 +1,97 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: What is NiftyBot?
+description: "Meet the universal AI engine that turns any subject into structured, actionable data."
 ---
 
-## Setting up
+NiftyBot is not just an API; it's an AI-powered perception engine for the world's data. It’s a universal tool capable of understanding and enriching information across any domain imaginable—from financial markets and scientific breakthroughs to product catalogs and creative works.
 
-Get your documentation site up and running in minutes.
+Think of it as a programmable layer of understanding you can apply to any subject. You provide a spark of context, and NiftyBot's AI builds a bridge to the precise data you need.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+## The NiftyBot Method: An AI-First Approach
 
-## Make it yours
+At the heart of NiftyBot is our **Flash Enrichment Engine** powering the `/v1/enrich` endpoint—real-time answers delivered in a single breath, backed by optional batch lanes when you need to scale beyond immediacy.                                   
 
-Design a docs site that looks great and empowers your users.
+1.  **AI-Powered Subject Analysis**: The process begins with our AI engine performing a deep contextual analysis of your `source` data. It doesn't just see keywords; it builds a rich understanding of the entity you're asking about.
 
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+2.  **Dynamic World Modeling**: NiftyBot's AI then autonomously determines if the requested information requires a snapshot of the live web. For data that is constantly in flux—stock prices, market sentiment, social media trends, competitor updates—it activates its **Live-Web Intelligence Engine** to consult a real-time model of the world.
+
+3.  **Cross-Modal Data Synthesis**: The AI synthesizes information from its internal knowledge base and the live web, reasoning over the data to extract the most accurate and relevant insights. It doesn't just retrieve data; it calculates, infers, and validates it.
+
+4.  **Scalable Processing**: Our Queue + Wait system processes requests with 90-second timeout handling. Fast requests return immediately with 200 OK, while complex processing continues in the background with graceful 202 Accepted responses.
+
+5.  **Priority Processing**: Higher subscription tiers get faster queue priority (1-10 scale) ensuring premium users receive faster processing times.
+
+## Core Capabilities
+
+<CardGroup cols={2}>
+  <Card title="Universal Domain Knowledge" icon="globe">
+    Go beyond a single niche. Enrich financial instruments, creative works, scientific concepts, consumer products, and any other subject you can describe.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Autonomous AI Reasoning" icon="brain">
+    Leverage an AI that thinks. It doesn't just look up data—it infers relationships, calculates values, and synthesizes information to answer complex questions.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Live-Web Intelligence" icon="bolt">
+    Tap into a real-time understanding of the world. For dynamic data, our AI consults the live web to ensure your information is current and accurate.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Simple, Elegant API" icon="code">
+    Access a world of AI-powered data through a single, intuitive endpoint. Complex questions, simple integration.
   </Card>
-</Columns>
+  <Card title="Flash Enrichment" icon="bolt">
+    `/v1/enrich` responds in-line—analysis, live-web intelligence, and validation arrive before the request returns.
+  </Card>
+  <Card title="Effortless Queue Orchestration" icon="radar">
+    Batch lanes auto-tune throughput so mission-critical calls stay instant while large jobs cruise in the background.
+  </Card>
+  <Card title="Priority Processing" icon="gauge">
+    Higher subscription tiers get faster queue priority. No hardcoded limits - all restrictions come from your database-driven tier.
+  </Card>
+</CardGroup>
 
-## Create beautiful pages
+## A Universe of Use Cases
 
-Everything you need to create world-class documentation.
+NiftyBot's universal nature unlocks an incredible variety of applications. Here are just a few ideas to get you started.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+<AccordionGroup>
+  <Accordion title="Finance & Investment">
+    - **Automated Due Diligence**: Enrich a list of startups with their latest funding, key executives, and a summary of their business model.
+    - **Market Intelligence**: Track the market share, recent product launches, and public sentiment of your competitors.
+    - **Portfolio Monitoring**: Get real-time stock prices, P/E ratios, and breaking news for companies in your portfolio.
+  </Accordion>
+  <Accordion title="Sales & Marketing">
+    - **Lead Enrichment**: Turn a simple email address into a rich profile with company size, industry, role, and location.
+    - **Personalization at Scale**: Generate personalized email copy by enriching your contact list with data about their company's latest achievements.
+    - **Content Strategy**: Analyze a URL to extract keywords, generate SEO metadata, and summarize the content for social media.
+  </Accordion>
+  <Accordion title="E-commerce & Retail">
+    - **Catalog Augmentation**: Enrich product listings with technical specifications, compatibility information, and user sentiment scores from across the web.
+    - **Dynamic Pricing**: Monitor competitor pricing and adjust your own in real-time.
+    - **Supply Chain Intelligence**: Enrich supplier data with their financial stability, production capacity, and geopolitical risk factors.
+  </Accordion>
+  <Accordion title="Media & Entertainment">
+    - **Content Metadata**: Enrich a movie title with its cast, director, Rotten Tomatoes score, and a plot summary.
+    - **Gaming Insights**: Get the release date, developer, and player count for a video game.
+    - **Music Data**: Find the BPM, key, and genre for any song title.
+  </Accordion>
+  <Accordion title="Healthcare & Life Sciences">
+    - **Drug Discovery**: Enrich a list of chemical compounds with their properties, recent research papers, and known side effects.
+    - **Clinical Trial Monitoring**: Get the current status, patient enrollment numbers, and lead researchers for any clinical trial.
+    - **Medical Research**: Summarize complex medical papers into a few key takeaways.
+  </Accordion>
+  <Accordion title="Real Estate & PropTech">
+    - **Property Data Enrichment**: Augment a property address with its estimated value, last sale date, zoning regulations, and local school ratings.
+    - **Neighborhood Analysis**: Provide a summary of a neighborhood's demographics, crime rates, and proximity to amenities.
+    - **Construction Monitoring**: Enrich data on a construction project with permit status, contractor history, and material cost estimates.
+  </Accordion>
+  <Accordion title="Legal & Compliance">
+    - **Case Law Research**: Summarize the key arguments and precedents from a given legal case citation.
+    - **Regulatory Intelligence**: Enrich a company's profile with a list of relevant industry regulations and their compliance status.
+    - **Contract Analysis**: Extract key terms, dates, and obligations from a legal contract.
+  </Accordion>
+  <Accordion title="Human Resources & Recruitment">
+    - **Candidate Sourcing**: Enrich a candidate's profile with their public social media links, work history, and estimated salary expectations.
+    - **Job Market Analysis**: Determine the average salary for a specific role in a given city.
+    - **Company Culture Assessment**: Analyze a company's online reviews to summarize its culture and employee satisfaction.
+  </Accordion>
+</AccordionGroup>
 
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+Ready to build the future of data-driven applications? Head over to our [Quick Start](/quickstart) guide to make your first API call.
